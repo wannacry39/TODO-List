@@ -27,7 +27,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	o1 := todo.NewTODO("Funeral", "18-01-2000", "")
+	o1 := todo.NewTODO("Work", "2024-12-01", "17:00:00")
 	res, err := storage.AddTODO(o1)
 	if err != nil {
 		log.Error("Error during adding event")

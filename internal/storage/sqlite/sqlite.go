@@ -4,7 +4,6 @@ import (
 	"TODO_App/todo"
 	"database/sql"
 	"fmt"
-	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -43,9 +42,7 @@ func New(StoragePath string) (*Storage, error) {
 func (s *Storage) AddTODO(event todo.TODO) (int64, error) {
 	const op = "storage.sqlite.AddTODO"
 
-	date := strings.Join([]string{event.Date, event.Time}, "-")
-
-	res, err := s.db.Exec(`INSERT INTO todo(event, date) VALUES($1, $2)`, event.Description, date)
+	res, err := s.db.Exec(`INSERT INTO todo(event, date) VALUES($1, $2)`, event.Description, event.Date.Format("2006-01-02 15:04:05"))
 	if err != nil {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
