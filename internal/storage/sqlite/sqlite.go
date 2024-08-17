@@ -4,6 +4,7 @@ import (
 	"TODO_App/todo"
 	"database/sql"
 	"fmt"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -24,7 +25,8 @@ func New(StoragePath string) (*Storage, error) {
 	CREATE TABLE IF NOT EXISTS todo(
 		id INTEGER PRIMARY KEY,
 		event TEXT NOT NULL UNIQUE,
-		date TEXT NOT NULL);
+		day TEXT NOT NULL,
+		time TEXT NOT NULL);
 	`)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -42,10 +44,31 @@ func New(StoragePath string) (*Storage, error) {
 func (s *Storage) AddTODO(event todo.TODO) (int64, error) {
 	const op = "storage.sqlite.AddTODO"
 
-	res, err := s.db.Exec(`INSERT INTO todo(event, date) VALUES($1, $2)`, event.Description, event.Date.Format("2006-01-02 15:04:05"))
+	res, err := s.db.Exec(`INSERT INTO todo(event, day, time) VALUES($1, $2, $3)`, event.Description, event.Date.Format("2006-01-02"), event.Date.Format("15:04:05"))
 	if err != nil {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 
 	return res.LastInsertId()
+}
+
+func (s *Storage) GetTodayTODOS() {
+	today := time.Now().Format("2006-01-02")
+
+	rows, err := s.db.Query(`SELECT event, time FROM todo WHERE day = $1;`, today)
+	if err != nil {
+		fmt.Println("Some err in getting events")
+		return
+	}
+	for rows.Next() {
+		var event string
+		var time string
+
+		err = rows.Scan(&event, &time)
+		if err != nil {
+			break
+		}
+		fmt.Printf("%s %s\n", event, time)
+	}
+
 }

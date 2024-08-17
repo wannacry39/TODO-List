@@ -3,8 +3,6 @@ package main
 import (
 	"TODO_App/internal/config"
 	"TODO_App/internal/storage/sqlite"
-	"TODO_App/todo"
-	"fmt"
 	"log/slog"
 	"os"
 )
@@ -27,16 +25,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	o1 := todo.NewTODO("Work", "2024-12-01", "17:00:00")
-	res, err := storage.AddTODO(o1)
-	if err != nil {
-		log.Error("Error during adding event")
-		os.Exit(1)
-	}
+	// o1 := todo.NewTODO("PArty", "2024-08-14", "17:00:00")
+	// res, err := storage.AddTODO(o1)
+	// if err != nil {
+	// 	log.Error("Error during adding event")
+	// 	os.Exit(1)
+	// }
 
 	log.Info("Event added")
-
-	fmt.Println(res)
+	storage.GetTodayTODOS()
+	// fmt.Println(res)
 
 }
 
