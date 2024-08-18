@@ -24,7 +24,7 @@ func New(StoragePath string) (*Storage, error) {
 	stmt, err := db.Prepare(`
 	CREATE TABLE IF NOT EXISTS todo(
 		id INTEGER PRIMARY KEY,
-		event TEXT NOT NULL UNIQUE,
+		event TEXT NOT NULL,
 		day TEXT NOT NULL,
 		time TEXT NOT NULL);
 	`)
@@ -44,7 +44,7 @@ func New(StoragePath string) (*Storage, error) {
 func (s *Storage) AddTODO(event todo.TODO) (int64, error) {
 	const op = "storage.sqlite.AddTODO"
 
-	res, err := s.db.Exec(`INSERT INTO todo(event, day, time) VALUES($1, $2, $3)`, event.Description, event.Date.Format("2006-01-02"), event.Date.Format("15:04:05"))
+	res, err := s.db.Exec(`INSERT INTO todo(event, day, time) VALUES($1, $2, $3)`, event.Description, event.Date.Format("2006-01-02"), event.Date.Format("15:04"))
 	if err != nil {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
@@ -55,7 +55,7 @@ func (s *Storage) AddTODO(event todo.TODO) (int64, error) {
 func (s *Storage) GetTodayTODOS() {
 	today := time.Now().Format("2006-01-02")
 
-	rows, err := s.db.Query(`SELECT event, time FROM todo WHERE day = $1;`, today)
+	rows, err := s.db.Query(`SELECT event, time FROM todo WHERE day = $1 ORDER BY time;`, today)
 	if err != nil {
 		fmt.Println("Some err in getting events")
 		return

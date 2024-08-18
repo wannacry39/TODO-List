@@ -2,9 +2,15 @@ package main
 
 import (
 	"TODO_App/internal/config"
+	add "TODO_App/internal/http-server/handlers/TODOS/Add"
+	"TODO_App/internal/http-server/middleware/logger"
 	"TODO_App/internal/storage/sqlite"
 	"log/slog"
+	"net/http"
 	"os"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 const (
@@ -25,17 +31,30 @@ func main() {
 		os.Exit(1)
 	}
 
-	// o1 := todo.NewTODO("PArty", "2024-08-14", "17:00:00")
-	// res, err := storage.AddTODO(o1)
-	// if err != nil {
-	// 	log.Error("Error during adding event")
-	// 	os.Exit(1)
-	// }
+	router := chi.NewRouter()
 
-	log.Info("Event added")
-	storage.GetTodayTODOS()
-	// fmt.Println(res)
+	router.Use(middleware.RequestID) //middleware
+	router.Use(middleware.Logger)
+	router.Use(logger.New(log))
+	router.Use(middleware.Recoverer)
 
+	router.Post("/Add", add.New(log, storage))
+
+	log.Info("Starting server", slog.String("Address: ", cfg.Address))
+
+	srv := &http.Server{
+		Addr:         cfg.Address,
+		Handler:      router,
+		ReadTimeout:  cfg.HttpServer.Timeout,
+		WriteTimeout: cfg.HttpServer.Timeout,
+		IdleTimeout:  cfg.HttpServer.Idletimeout,
+	}
+
+	if err := srv.ListenAndServe(); err != nil {
+		log.Error("failed to start server")
+	}
+
+	log.Error("server stopped")
 }
 
 func SetupLogger(env string) *slog.Logger {
