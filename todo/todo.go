@@ -1,22 +1,24 @@
 package todo
 
 import (
-	"strings"
 	"time"
 )
 
 type TODO struct {
 	Description string
-	Date        time.Time
+	Day         time.Time
+	Time        time.Time
 }
 
 func NewTODO(Desc string, Date string, Time string) TODO {
 
-	datetime, _ := time.Parse(time.DateTime, strings.Join([]string{Date, Time}, " "))
+	day, _ := time.Parse(time.DateOnly, Date)
+	time, _ := time.Parse(time.TimeOnly, Time)
 
 	return TODO{
 		Description: Desc,
-		Date:        datetime,
+		Day:         day,
+		Time:        time,
 	}
 
 }

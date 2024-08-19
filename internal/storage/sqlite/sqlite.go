@@ -43,8 +43,9 @@ func New(StoragePath string) (*Storage, error) {
 
 func (s *Storage) AddTODO(event todo.TODO) (int64, error) {
 	const op = "storage.sqlite.AddTODO"
-
-	res, err := s.db.Exec(`INSERT INTO todo(event, day, time) VALUES($1, $2, $3)`, event.Description, event.Date.Format("2006-01-02"), event.Date.Format("15:04"))
+	fmt.Println(event.Day)
+	fmt.Println(event.Time)
+	res, err := s.db.Exec(`INSERT INTO todo(event, day, time) VALUES($1, $2, $3)`, event.Description, event.Day.Format("2006-01-02"), event.Time.Format("15:04"))
 	if err != nil {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
