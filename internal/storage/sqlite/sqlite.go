@@ -45,7 +45,7 @@ func (s *Storage) AddTODO(event todo.TODO) (int64, error) {
 	const op = "storage.sqlite.AddTODO"
 	fmt.Println(event.Day)
 	fmt.Println(event.Time)
-	res, err := s.db.Exec(`INSERT INTO todo(event, day, time) VALUES($1, $2, $3)`, event.Description, event.Day.Format("2006-01-02"), event.Time.Format("15:04"))
+	res, err := s.db.Exec(`INSERT INTO todo(event, day, time) VALUES($1, $2, $3)`, event.Description, event.Day, event.Time)
 	if err != nil {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
@@ -53,14 +53,16 @@ func (s *Storage) AddTODO(event todo.TODO) (int64, error) {
 	return res.LastInsertId()
 }
 
-func (s *Storage) GetTodayTODOS() {
+func (s *Storage) GetTodayTODOS() ([]todo.TODO, error) {
 	today := time.Now().Format("2006-01-02")
 
 	rows, err := s.db.Query(`SELECT event, time FROM todo WHERE day = $1 ORDER BY time;`, today)
 	if err != nil {
 		fmt.Println("Some err in getting events")
-		return
+		return nil, err
 	}
+
+	var todos []todo.TODO
 	for rows.Next() {
 		var event string
 		var time string
@@ -69,7 +71,7 @@ func (s *Storage) GetTodayTODOS() {
 		if err != nil {
 			break
 		}
-		fmt.Printf("%s %s\n", event, time)
+		todos = append(todos, todo.NewTODO(event, today, time))
 	}
-
+	return todos, nil
 }
