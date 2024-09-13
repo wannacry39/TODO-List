@@ -4,7 +4,6 @@ import (
 	"TODO_App/todo"
 	"database/sql"
 	"fmt"
-	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -53,10 +52,9 @@ func (s *Storage) AddTODO(event todo.TODO) (int64, error) {
 	return res.LastInsertId()
 }
 
-func (s *Storage) GetTodayTODOS() ([]todo.TODO, error) {
-	today := time.Now().Format("2006-01-02")
+func (s *Storage) GetTODOS(day string) ([]todo.TODO, error) {
 
-	rows, err := s.db.Query(`SELECT event, time FROM todo WHERE day = $1 ORDER BY time;`, today)
+	rows, err := s.db.Query(`SELECT event, time FROM todo WHERE day = $1 ORDER BY time;`, day)
 	if err != nil {
 		fmt.Println("Some err in getting events")
 		return nil, err
@@ -71,7 +69,7 @@ func (s *Storage) GetTodayTODOS() ([]todo.TODO, error) {
 		if err != nil {
 			break
 		}
-		todos = append(todos, todo.NewTODO(event, today, time))
+		todos = append(todos, todo.NewTODO(event, day, time))
 	}
 	return todos, nil
 }

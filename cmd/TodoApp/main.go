@@ -3,6 +3,7 @@ package main
 import (
 	"TODO_App/internal/config"
 	add "TODO_App/internal/http-server/handlers/TODOS/Add"
+	getcertainday "TODO_App/internal/http-server/handlers/TODOS/GetCertainDay"
 	gettoday "TODO_App/internal/http-server/handlers/TODOS/GetToday"
 	"TODO_App/internal/http-server/middleware/logger"
 	"TODO_App/internal/storage/sqlite"
@@ -41,6 +42,7 @@ func main() {
 
 	router.Post("/Add", add.New(log, storage))
 	router.Get("/Today", gettoday.Get(log, storage))
+	router.Get("/Get/{day}", getcertainday.GetCertain(log, storage))
 
 	log.Info("Starting server", slog.String("Address: ", cfg.Address))
 
